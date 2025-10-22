@@ -6,33 +6,33 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORS: Allow requests from any frontend (or restrict to your domain)
+// ✅ CORS: allow requests from deployed frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*", // set FRONTEND_URL on Render for production
+  origin: process.env.FRONTEND_URL, // set this on Render: your Vercel frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
 app.use(express.json());
 
-// ✅ Connect to MongoDB Atlas
+// ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useUnifiedTopology: true
 })
 .then(() => console.log("MongoDB connected"))
-.catch((err) => console.error("MongoDB connection error:", err));
+.catch(err => console.error("MongoDB connection error:", err));
 
-// ✅ Student Schema
+// ✅ Student schema
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   rollNumber: { type: String, unique: true, required: true },
   course: { type: String, required: true },
-  marks: { type: Number, required: true },
+  marks: { type: Number, required: true }
 });
 
 const Student = mongoose.model("Student", studentSchema);
 
-// ✅ CRUD Routes
+// ✅ CRUD routes
 app.get("/api/students", async (req, res) => {
   try {
     const students = await Student.find();
@@ -83,14 +83,4 @@ app.delete("/api/students/:rollNumber", async (req, res) => {
   }
 });
 
-// ✅ Serve frontend in production (optional)
-const path = require("path");
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/build")));
-  app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
-  });
-}
-
-// ✅ Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
