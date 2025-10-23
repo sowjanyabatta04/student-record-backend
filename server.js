@@ -6,23 +6,20 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS from your frontend
+// CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // e.g., your Vercel URL
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.error("MongoDB connection error:", err));
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
-// Student Schema
+// Student schema
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   rollNumber: { type: String, unique: true, required: true },
@@ -33,11 +30,6 @@ const studentSchema = new mongoose.Schema({
 const Student = mongoose.model("Student", studentSchema);
 
 // Routes
-
-// Test root route
-app.get("/", (req, res) => res.send("Backend is running!"));
-
-// Get all students
 app.get("/api/students", async (req, res) => {
   try {
     const students = await Student.find();
@@ -47,9 +39,8 @@ app.get("/api/students", async (req, res) => {
   }
 });
 
-// Add student
 app.post("/api/students", async (req, res) => {
-  console.log("POST /api/students body:", req.body);
+  console.log("POST body:", req.body);
   try {
     const student = new Student(req.body);
     await student.save();
@@ -60,7 +51,6 @@ app.post("/api/students", async (req, res) => {
   }
 });
 
-// Delete student
 app.delete("/api/students/:rollNumber", async (req, res) => {
   try {
     await Student.findOneAndDelete({ rollNumber: req.params.rollNumber });
