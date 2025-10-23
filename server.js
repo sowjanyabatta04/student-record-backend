@@ -49,11 +49,13 @@ app.get("/api/students", async (req, res) => {
 
 // Add student
 app.post("/api/students", async (req, res) => {
+  console.log("POST /api/students body:", req.body);
   try {
     const student = new Student(req.body);
     await student.save();
     res.json(student);
   } catch (err) {
+    console.error("Error saving student:", err);
     res.status(400).json({ error: "Failed to add student. Roll Number must be unique." });
   }
 });
